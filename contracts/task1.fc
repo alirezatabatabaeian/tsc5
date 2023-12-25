@@ -20,8 +20,9 @@
     if(op == 0x9df10277){
         in_msg~skip_bits(64);
         slice signature = in_msg~load_bits(512);
-        slice information = in_msg~load_ref().begin_parse();
-        int hash = slice_hash(information);
+        cell information = in_msg~load_ref();
+        int hash = cell_hash(information);
+        slice information = information.begin_parse();
         int locked_for = information~load_uint(32);
         int new_seqno = information~load_uint(32); ;; preload
 
