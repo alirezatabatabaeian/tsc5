@@ -20,13 +20,13 @@
     if(op == 0x9df10277){
         in_msg~skip_bits(64);
         slice signature = in_msg~load_bits(512);
-        cell info = in_msg~load_ref();
-        slice info_slice = info.begin_parse();
-        int locked_for = info_slice~load_uint(32);
-        int new_seqno = info_slice~load_uint(32);
+        slice information = in_msg~load_ref().begin_parse();
+        int hash = slice_hash(information);
+        int locked_for = information~load_uint(32);
+        int new_seqno = information~load_uint(32); ;; preload
 
         throw_unless(119, new_seqno == seqno + 1);
-        throw_unless(120, check_signature(cell_hash(info), signature, public_key));
+        throw_unless(120, check_signature(hash, signature, public_key));
         throw_unless(121, locked_for > 0);
         throw_unless(122, execution_time >= now());
         throw_unless(123, now() + locked_for >= execution_time);
@@ -39,7 +39,7 @@
     if(op == 0xbb4be234){
         throw_unless(124, now() > execution_time);
         accept_message();
-        
+
         send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(receiver).store_coins(0).store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1).end_cell(), 128);
         return();
     }
