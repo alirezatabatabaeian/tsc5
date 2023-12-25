@@ -19,7 +19,7 @@
 
     if(op == 0x9df10277){
         in_msg~skip_bits(64);
-        slice signature = in_msg~load_bits(512);
+        slice signature = in_msg.preload_bits(512);
         cell information = in_msg~load_ref();
         int hash = cell_hash(information);
         slice information = information.begin_parse();
