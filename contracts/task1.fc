@@ -14,7 +14,6 @@
 }
 
 () recv_external(slice in_msg) impure {
-    accept_message();
     int op = in_msg~load_uint(32);
     (int public_key, int execution_time, slice receiver, int seqno) = load_data();
 
@@ -31,6 +30,7 @@
         throw_unless(121, locked_for > 0);
         throw_unless(122, execution_time >= now());
         throw_unless(123, now() + locked_for >= execution_time);
+        accept_message();
 
         save_data(public_key, now() + locked_for, receiver, new_seqno);
         return ();
