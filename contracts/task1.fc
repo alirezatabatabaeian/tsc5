@@ -50,5 +50,5 @@ int get_seqno() method_id {
 
 int get_execution_time() method_id {
     (_, int execution_time, _, _) = load_data();
-    return execution_time - now();
+    return execution_time;
 } 
