@@ -23,7 +23,7 @@
         int hash = cell_hash(information);
         slice information = information.begin_parse();
         int locked_for = information~load_uint(32);
-        int new_seqno = information~load_uint(32); ;; preload
+        int new_seqno = information.preload_uint(32); ;; preload
 
         throw_unless(119, new_seqno == seqno + 1);
         throw_unless(120, check_signature(hash, in_msg, public_key));
