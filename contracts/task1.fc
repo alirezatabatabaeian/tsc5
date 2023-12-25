@@ -14,7 +14,7 @@
 }
 
 () recv_external(slice in_msg) impure {
-    accept_message();
+    ;; accept_message();
     int op = in_msg~load_uint(32);
     (int public_key, int execution_time, slice receiver, int seqno) = load_data();
 
@@ -37,7 +37,7 @@
     }
 
     if(op == 0xbb4be234){
-        throw_unless(124, now() >= execution_time);
+        throw_unless(124, now() > execution_time);
         send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(receiver).store_coins(0).store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1).end_cell(), 128);
         return();
     }
