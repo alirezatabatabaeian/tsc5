@@ -16,9 +16,10 @@
 () recv_external(slice in_msg) impure {
     int op = in_msg~load_uint(32);
     (int public_key, int execution_time, slice receiver, int seqno) = load_data();
+    int now = now();
 
     if(op == 0x9df10277){
-        ;; in_msg~skip_bits(64);
+        in_msg~skip_bits(64);
         cell information = in_msg~load_ref();
         int hash = cell_hash(information);
         slice information = information.begin_parse();
@@ -26,18 +27,18 @@
         int new_seqno = information.preload_uint(32); ;; preload
 
         throw_unless(119, new_seqno == seqno + 1);
-        throw_unless(120, check_signature(hash, in_msg.skip_bits(64), public_key));
+        throw_unless(120, check_signature(hash, in_msg, public_key));
         throw_unless(121, locked_for > 0);
-        throw_unless(122, execution_time >= now());
-        throw_unless(123, now() + locked_for >= execution_time);
+        throw_unless(122, execution_time >= now);
+        throw_unless(123, now + locked_for >= execution_time);
         accept_message();
 
-        save_data(public_key, now() + locked_for, receiver, new_seqno);
+        save_data(public_key, now + locked_for, receiver, new_seqno);
         return ();
     }
 
     if(op == 0xbb4be234){
-        throw_unless(124, now() > execution_time);
+        throw_unless(124, now > execution_time);
         accept_message();
 
         send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(receiver).store_coins(0).store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1).end_cell(), 128);
