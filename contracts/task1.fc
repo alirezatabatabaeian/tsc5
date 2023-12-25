@@ -27,17 +27,17 @@
         int new_seqno = info_slice~load_uint(32);
 
         throw_unless(119, new_seqno == seqno + 1);
-        ;; throw_unless(120, check_signature(cell_hash(info), signature, public_key));
+        throw_unless(120, check_signature(cell_hash(info), signature, public_key));
         throw_unless(121, locked_for > 0);
         throw_unless(122, execution_time >= now());
-        throw_unless(123, (now() + locked_for) >= execution_time);
+        throw_unless(123, now() + locked_for >= execution_time);
 
         save_data(public_key, now() + locked_for, receiver, new_seqno);
         return ();
     }
 
     if(op == 0xbb4be234){
-        throw_unless(124, now() > execution_time);
+        throw_unless(124, now() >= execution_time);
         send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(receiver).store_coins(0).store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1).end_cell(), 128);
         return();
     }
