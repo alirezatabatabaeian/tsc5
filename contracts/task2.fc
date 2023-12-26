@@ -42,10 +42,11 @@
             (key, value, flag) = users.udict_get_next?(256, key);
         }
 
-        (int key, slice value, int flag) = users.udict_get_min?(256);
+        (key, value, flag) = users.udict_get_min?(256);
         while(flag){
             int share = value~load_uint(32);
-            send_raw_message(begin_cell().store_uint(0x18, 6).store_uint(2, 2).store_uint(0, 1).store_int(0, 8).store_uint(key, 256).store_coins(share * msg_value / total_shares).store_uint(0, 107).end_cell(), 1);
+            send_raw_message(begin_cell().store_uint(0x18, 6).store_uint(2, 2).store_uint(0, 1).store_int(0, 8)
+            .store_uint(key, 256).store_coins(share * msg_value / total_shares).store_uint(0, 107).end_cell(), 1);
             (key, value, flag) = users.udict_get_next?(256, key);
         }
 
@@ -64,7 +65,7 @@
             (key, value, flag) = users.udict_get_next?(256, key);
         }
 
-        (int key, slice value, int flag) = users.udict_get_min?(256);
+        (key, value, flag) = users.udict_get_min?(256);
         while(flag){
             int share = value~load_uint(32);
             send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(sender_address).store_coins(20000000).store_uint(1, 107).store_ref(
