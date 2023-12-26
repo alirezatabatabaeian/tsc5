@@ -13,7 +13,7 @@
 
     slice sender_address = cs~load_msg_addr();
     int op = in_msg_body~load_uint(32);
-    in_msg_body~skip_bits(64);
+    int query_id = in_msg_body~load_uint(64);
 
     if(op == 0x368ddef3){
         throw_unless(120, equal_slices(sender_address, admin_address));
