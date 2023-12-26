@@ -26,7 +26,8 @@
     }
 
     if(op == 0xbb4be234){ ;; else
-        (_, int execution_time, slice receiver, _) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
+        ds~skip_bits(256);
+        (int execution_time, slice receiver) = (ds~load_uint(32), ds~load_msg_addr());
         throw_unless(124, now > execution_time);
         accept_message();
         send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(receiver).store_coins(0).store_uint(0, 107).end_cell(), 128);
