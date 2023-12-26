@@ -4,15 +4,23 @@
 (slice, slice, int) dict_get_next(slice key, cell dict, int bits) asm "DICTGETNEXT";
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
-    int op = in_msg_body~load_uint(32);
-    int query_id = in_msg_body~load_uint(64);
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+
+    if (flags & 1) {
+        return ();
+    }
 
     slice ds = get_data().begin_parse();
     (slice admin_address, cell users) = (ds~load_msg_addr(), ds~load_dict());
 
-    slice cs = in_msg_full.begin_parse();
-    cs~skip_bits(4);
     slice sender_address = cs~load_msg_addr();
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
 
     if(op == 0x368ddef3){
         throw_unless(120, equal_slices(sender_address, admin_address));
