@@ -7,7 +7,7 @@
     slice ds = get_data().begin_parse();    
     int now = now();
 
-    if(op == 1){
+    if(op == 0){
         (int public_key, int execution_time, slice receiver, int seqno) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
         in_msg~skip_bits(95);
         cell information = in_msg~load_ref();
