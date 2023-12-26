@@ -4,7 +4,7 @@
 
 () recv_external(slice in_msg) impure {
     int op = in_msg~load_uint(3);
-    slice ds = get_data().begin_parse();    
+    slice ds = get_data().begin_parse();
     int now = now();
 
     if(op == 4){

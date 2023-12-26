@@ -1,5 +1,90 @@
 #include "imports/stdlib.fc";
 
-() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+(slice, slice, int) dict_get_min(cell dict, int bits) asm "DICTMIN";
+(slice, slice, int) dict_get_next(slice key, cell dict, int bits) asm "DICTGETNEXT";
 
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    slice ds = get_data().begin_parse();
+    (slice admin_address, cell users) = (ds~load_msg_addr(), ds~load_dict());
+
+    slice cs = in_msg_full.begin_parse();
+    cs~skip_bits(4);
+    slice sender_address = cs~load_msg_addr();
+
+    if(op == 0x368ddef3){
+        throw_unless(120, equal_slices(sender_address, admin_address));
+        slice new_user = in_msg_body~load_msg_addr();
+        users~dict_set(256, new_user, in_msg_body);
+        set_data(begin_cell().store_slice(admin_address).store_dict(users).end_cell());
+        return ();
+    }
+
+    if(op == 0x278205c8){
+        throw_unless(120, equal_slices(sender_address, admin_address));
+        slice remove_user = in_msg_body~load_msg_addr();
+        int flag = users~pfxdict_delete?(256, remove_user);
+        throw_unless(121, flag);
+        set_data(begin_cell().store_slice(admin_address).store_dict(users).end_cell());
+        return ();
+    }
+
+    if(op == 0x68530b3){
+        throw_unless(122, ~ users.dict_empty?());
+
+        int total_shares = 0;
+        (slice value, slice key, int flag) = users.dict_get_min(256);
+        while(flag){
+            total_shares += value~load_uint(32);
+            (value, key, flag) = dict_get_next(key, users, 256);
+        }
+
+        (slice value, slice key, int flag) = users.dict_get_min(256);
+        while(flag){
+            int share = value~load_uint(32);
+            send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(key).store_coins(share * msg_value / total_shares).store_uint(0, 107).end_cell(), 1);
+            (value, key, flag) = dict_get_next(key, users, 256);
+        }
+
+        return ();
+    }
+
+    if(op == 0x7362d09c){
+        throw_unless(122, ~ users.dict_empty?());
+        int token_amount = in_msg_body~load_coins();
+
+        int total_shares = 0;
+        (slice value, slice key, int flag) = users.dict_get_min(256);
+        while(flag){
+            total_shares += value~load_uint(32);
+            (value, key, flag) = dict_get_next(key, users, 256);
+        }
+
+        (slice value, slice key, int flag) = users.dict_get_min(256);
+        while(flag){
+            int share = value~load_uint(32);
+            send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(sender_address).store_coins(20000000).store_uint(1, 107).store_ref(
+                    begin_cell().store_uint(0x54b95f29, 32).store_uint(query_id, 64).store_coins(share * token_amount / total_shares).store_slice(key)
+                .store_slice(key).store_uint(0, 1).store_coins(1).end_cell()
+                ).end_cell(), 1);
+            (value, key, flag) = dict_get_next(key, users, 256);
+        }
+
+        return ();
+    }
+}
+
+cell get_users() method_id {
+    slice ds = get_data().begin_parse();
+    (slice admin_address, cell users) = (ds~load_msg_addr(), ds~load_dict());
+    return users;
+}
+
+int get_user_share(slice user_address) method_id {
+    slice ds = get_data().begin_parse();
+    (slice admin_address, cell users) = (ds~load_msg_addr(), ds~load_dict());
+    (_, slice value, _, _) = users.pfxdict_get?(256, user_address);
+    return value~load_uint(32);
 }
