@@ -5,17 +5,15 @@
     return (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
 }
 
-;; () save_data(int public_key, int execution_time, slice receiver, int seqno) impure inline {
-    
-;; }
-
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
 
 }
 
 () recv_external(slice in_msg) impure {
     int op = in_msg~load_uint(32);
-    (int public_key, int execution_time, slice receiver, int seqno) = load_data();
+    ;; (int public_key, int execution_time, slice receiver, int seqno) = load_data();
+    slice ds = get_data().begin_parse();
+    (int public_key, int execution_time, slice receiver, int seqno) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
     int now = now();
 
     if(op == 0x9df10277){
@@ -33,7 +31,6 @@
         throw_unless(123, now + locked_for >= execution_time);
         accept_message();
 
-        ;; save_data(public_key, now + locked_for, receiver, new_seqno);
         set_data(begin_cell().store_uint(public_key, 256).store_uint(now + locked_for, 32).store_slice(receiver).store_uint(new_seqno, 32).end_cell());
         return ();
     }
