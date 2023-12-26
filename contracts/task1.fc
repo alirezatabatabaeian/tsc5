@@ -10,7 +10,6 @@
     if(op == 4){
         (int public_key, int execution_time, slice receiver, int seqno) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
         in_msg~skip_bits(93);
-        int execnow = execution_time - now;
         cell information = in_msg~load_ref();
         int hash = cell_hash(information);
         slice information = information.begin_parse();
@@ -19,8 +18,8 @@
         throw_unless(119, new_seqno == seqno + 1);
         throw_unless(120, check_signature(hash, in_msg, public_key));
         throw_unless(121, locked_for > 0);
-        throw_unless(122, execnow >= 0);
-        throw_unless(123, locked_for >= execnow);
+        throw_unless(122, execution_time >= now);
+        throw_unless(123, now + locked_for >= execution_time);
         accept_message();
         set_data(begin_cell().store_uint(public_key, 256).store_uint(now + locked_for, 32).store_slice(receiver).store_uint(new_seqno, 32).end_cell());
         return ();
