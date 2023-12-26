@@ -74,9 +74,9 @@
         while(flag){
             int share = value~load_uint(32);
             send_raw_message(begin_cell().store_uint(0x18, 6).store_slice(sender_address).store_coins(20000000).store_uint(1, 107).store_ref(
-                    begin_cell().store_uint(0x54b95f29, 32).store_uint(query_id, 64).store_coins(share * token_amount / total_shares).store_slice(key)
-                .store_slice(key).store_uint(0, 1).store_coins(1).end_cell()
-                ).end_cell(), 0);
+                    begin_cell().store_uint(0xf8a7ea5, 32).store_uint(0, 64).store_coins(share * token_amount / total_shares).store_slice(key)
+                .store_slice(key).store_uint(0, 1).store_coins(1).store_uint(0, 1).end_cell()
+                ).end_cell(), 1);
             (value, key, flag) = dict_get_next(key, users, 256);
         }
 
