@@ -6,11 +6,7 @@
     }
 
     slice cs = in_msg_full.begin_parse();
-    int flags = cs~load_uint(4);
-
-    ;; if (flags & 1) {
-    ;;     return ();
-    ;; }
+    cs~skip_bits(4);
 
     slice ds = get_data().begin_parse();
     (slice admin_address, cell users) = (ds~load_msg_addr(), ds~load_dict());
