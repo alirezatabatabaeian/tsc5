@@ -25,7 +25,7 @@
 
     if(op == 0x278205c8){
         throw_unless(120, equal_slices(sender_address, admin_address));
-        int remove_user = in_msg_body~load_msg_addr().skip_bits(11).preload_uint(256);
+        int remove_user = in_msg_body.skip_bits(11).preload_uint(256);
         int flag = users~udict_delete?(256, remove_user);
         throw_unless(121, flag);
         set_data(begin_cell().store_slice(admin_address).store_dict(users).end_cell());
