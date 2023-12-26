@@ -3,13 +3,13 @@
 }
 
 () recv_external(slice in_msg) impure {
-    int op = in_msg~load_uint(1);
+    int op = in_msg~load_uint(4);
     slice ds = get_data().begin_parse();    
     int now = now();
 
-    if(op == 0){
+    if(op == 7){
         (int public_key, int execution_time, slice receiver, int seqno) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
-        in_msg~skip_bits(95);
+        in_msg~skip_bits(92);
         cell information = in_msg~load_ref();
         int hash = cell_hash(information);
         slice information = information.begin_parse();
@@ -36,12 +36,12 @@
 
 int get_seqno() method_id {
     slice ds = get_data().begin_parse();
-    (int public_key, int execution_time, slice receiver, int seqno) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
+    (_, _, _, int seqno) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
     return seqno;
 }
 
 int get_execution_time() method_id {
     slice ds = get_data().begin_parse();
-    (int public_key, int execution_time, slice receiver, int seqno) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
+    (_, int execution_time, _, _) = (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
     return execution_time;
 } 
