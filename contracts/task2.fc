@@ -13,9 +13,10 @@
 
     slice sender_address = cs~load_msg_addr();
     int op = in_msg_body~load_uint(32);
-    int query_id = in_msg_body~load_uint(64);
+    
 
     if(op == 0x368ddef3){
+        in_msg_body~skip_bits(64);
         throw_unless(120, equal_slices(sender_address, admin_address));
         int new_user = in_msg_body~load_msg_addr().skip_bits(11).preload_uint(256);
         users~udict_set(256, new_user, in_msg_body);
@@ -24,6 +25,7 @@
     }
 
     if(op == 0x278205c8){
+        in_msg_body~skip_bits(64);
         throw_unless(120, equal_slices(sender_address, admin_address));
         int remove_user = in_msg_body~load_msg_addr().skip_bits(11).preload_uint(256);
         int flag = users~udict_delete?(256, remove_user);
@@ -53,6 +55,7 @@
     }
 
     if(op == 0x7362d09c){
+        in_msg_body~skip_bits(64);
         throw_unless(122, ~ users.dict_empty?());
 
         int token_amount = in_msg_body~load_coins();
