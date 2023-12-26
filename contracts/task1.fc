@@ -1,6 +1,6 @@
 #include "imports/stdlib.fc";
 
-(int, int, slice, int) load_data() inline {
+(int, int, slice, int) load_data() impure inline {
     slice ds = get_data().begin_parse();
     return (ds~load_uint(256), ds~load_uint(32), ds~load_msg_addr(), ds.preload_uint(32));
 }
@@ -24,7 +24,7 @@
         int hash = cell_hash(information);
         slice information = information.begin_parse();
         int locked_for = information~load_uint(32);
-        int new_seqno = information.preload_uint(32); ;; preload
+        int new_seqno = information.preload_uint(32);
 
         throw_unless(119, new_seqno == seqno + 1);
         throw_unless(120, check_signature(hash, in_msg, public_key));
