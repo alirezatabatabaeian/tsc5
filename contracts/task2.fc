@@ -18,7 +18,8 @@
     if(op == 0x368ddef3){
         throw_unless(120, equal_slices(sender_address, admin_address));
         int new_user = in_msg_body~load_msg_addr().skip_bits(11).preload_uint(256);
-        set_data(begin_cell().store_slice(admin_address).store_dict(users.udict_set(256, new_user, in_msg_body)).end_cell());
+        users~udict_set(256, new_user, in_msg_body);
+        set_data(begin_cell().store_slice(admin_address).store_dict(users).end_cell());
         return ();
     }
 
@@ -31,7 +32,7 @@
     }
 
     if(op == 0x68530b3){
-        throw_unless(122, ~ users.dict_empty?());
+        throw_if(122, users.dict_empty?());
 
         int total_shares = 0;
         (int key, slice value, int flag) = users.udict_get_min?(256);
@@ -52,7 +53,7 @@
     }
 
     if(op == 0x7362d09c){
-        throw_unless(122, ~ users.dict_empty?());
+        throw_if(122, users.dict_empty?());
 
         int token_amount = in_msg_body~load_coins();
 
