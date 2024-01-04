@@ -18,8 +18,7 @@
     if(op == 0x368ddef3){
         throw_unless(120, equal_slices(sender_address, admin_address));
         int new_user = in_msg_body~load_msg_addr().skip_bits(11).preload_uint(256);
-        users~udict_set(256, new_user, in_msg_body);
-        set_data(begin_cell().store_slice(admin_address).store_dict(users).end_cell());
+        set_data(begin_cell().store_slice(admin_address).store_dict(users.udict_set(256, new_user, in_msg_body)).end_cell());
         return ();
     }
 
